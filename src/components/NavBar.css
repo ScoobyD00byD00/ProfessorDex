@@ -1,0 +1,100 @@
+/* src/components/NavBar.css */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1c1c2b;
+    padding: 0.8rem 2rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .logo-img {
+    height: 40px;
+    padding-right: 1rem;
+  }
+  
+  .site-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+  
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .navbar-links a:hover {
+    color: #90caf9;
+  }
+  
+  .navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .navbar-user span {
+    font-size: 0.9rem;
+  }
+  
+  .navbar-user button {
+    background-color: #f44336;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  @media (max-width: 768px) {
+    .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+  
+    .navbar-logo {
+      justify-content: center;
+      width: 100%;
+    }
+  
+    .nav-links {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      width: 100%;
+    }
+  
+    .navbar-user {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 0.5rem;
+    }
+  
+    .navbar-user span {
+      font-size: 0.9rem;
+    }
+  
+    .logout-button {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.9rem;
+    }
+  }
+  

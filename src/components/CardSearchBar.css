@@ -1,0 +1,36 @@
+.search-bar-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .search-input,
+  .search-select,
+  .search-button {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .search-select {
+    min-width: 120px;
+  }
+  
+  .search-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    min-width: 100px;
+  }
+  
+  .search-button:hover {
+    background-color: #45a049;
+  }
+  
