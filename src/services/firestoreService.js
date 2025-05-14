@@ -1,31 +1,26 @@
 // src/services/firestoreService.js
 import {
-  getFirestore,
   collection,
   getDocs,
   query,
-  where,
-  addDoc,
+  addDoc
 } from "firebase/firestore";
+import { db } from "../firebase";
 
-const db = getFirestore();
-
-// Total cards user owns (from personal collection)
+// Total cards user owns
 export const getTotalCardsOwned = async (userId) => {
   const collectionRef = collection(db, "users", userId, "personalCollection");
   const snapshot = await getDocs(collectionRef);
   return snapshot.size;
 };
 
-// Get all cards from the personal collection
-export const getOwnedCardsForUser = async (userId) => {
-  if (!userId) throw new Error("No user ID provided");
-  const q = query(collection(db, "users", userId, "personalCollection"));
-  const snapshot = await getDocs(q);
+// All owned cards
+export const getAllOwnedCards = async (userId) => {
+  const snapshot = await getDocs(collection(db, "users", userId, "personalCollection"));
   return snapshot.docs.map((doc) => doc.data());
 };
 
-// Create a named collection (e.g. user-defined folder/group)
+// Create a new user collection (folder)
 export const createUserCollection = async (userId, collectionName) => {
   if (!userId) throw new Error("No user ID provided");
   const userCollectionsRef = collection(db, "users", userId, "collections");
@@ -36,18 +31,14 @@ export const createUserCollection = async (userId, collectionName) => {
   return docRef.id;
 };
 
-// Count decks created
+// Count total decks user created
 export const getTotalDecksCreated = async (userId) => {
-  const snapshot = await getDocs(
-    collection(db, `users/${userId}/decks`)
-  );
+  const snapshot = await getDocs(collection(db, "users", userId, "decks"));
   return snapshot.size;
 };
 
-// ✅ NEW: Count completed master sets from summaries
+// Count completed master sets
 export const getMasterSetsCompleted = async (userId) => {
-  const snapshot = await getDocs(
-    collection(db, "users", userId, "masterSetSummaries")
-  );
+  const snapshot = await getDocs(collection(db, "users", userId, "masterSetSummaries"));
   return snapshot.docs.filter((doc) => doc.data().completed === true).length;
 };

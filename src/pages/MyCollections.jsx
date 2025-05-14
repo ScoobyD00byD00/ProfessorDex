@@ -24,6 +24,8 @@ const MyCollections = () => {
   const [sortByName, setSortByName] = useState("asc");
   const [loading, setLoading] = useState(true);
 
+
+
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -109,7 +111,7 @@ const MyCollections = () => {
     <div>
       <NavBar />
       <div style={{ padding: "2rem" }}>
-        <h1>📁 My Collection</h1>
+      <h1 style={{ fontSize: "1.5rem", fontWeight: "400", marginBottom: "1rem" }}>My Collection</h1>
 
         <div style={{ marginBottom: "1rem" }}>
           <input

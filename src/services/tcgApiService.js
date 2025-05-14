@@ -1,17 +1,18 @@
-// src/services/tcgApiService.js
+const API_KEY = import.meta.env.VITE_TCG_API_KEY;
+
 export async function searchCards(query, field = "name") {
-    const q = `${field}:"${query}"`; // e.g., artist:"Yuka Morii"
-    const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(q)}`, {
-      headers: {
-        'X-Api-Key': 'YOUR_API_KEY' // remove if not required
-      }
-    });
-  
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}`);
+  const q = `${field}:"${query}"`;
+
+  const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(q)}&pageSize=250`, {
+    headers: {
+      'X-Api-Key': API_KEY
     }
-  
-    const data = await response.json();
-    return data.data;
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status}`);
   }
-  
+
+  const data = await response.json();
+  return data.data;
+}

@@ -30,9 +30,7 @@ const DeckBuilder = () => {
   const [showListView, setShowListView] = useState(false);
   const [searchListView, setSearchListView] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
-  const [showEventExport, setShowEventExport] = useState(false);
-  const normalizeSearchTerm = (str) =>
-    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+ 
 
   // 📝 Player info for TCG Event Export
   const [playerInfo, setPlayerInfo] = useState({
@@ -79,7 +77,7 @@ const DeckBuilder = () => {
     }
   }, [energyFilter]);
 
-  // 🆕 Create a new deck
+  // Create a new deck
   const handleCreateDeck = async () => {
     if (!deckName.trim()) return;
     if (check(deckName)) {
@@ -288,7 +286,7 @@ const DeckBuilder = () => {
       <div style={{ padding: "2rem", maxWidth: "1000px", margin: "auto" }}>
         {!currentDeckId ? (
           <>
-            <h2>Create a New Deck</h2>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: "400", marginBottom: "1rem" }}>Create a New Deck</h1>
             <input
               value={deckName}
               maxLength={30}

@@ -1,0 +1,16 @@
+.text-center {
+  text-align: center;
+}
+
+.btn {
+  background: var(--accent-color);
+  color: black;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

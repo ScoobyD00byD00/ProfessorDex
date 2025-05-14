@@ -1,64 +1,109 @@
-// Importing necessary modules and components
-import React, { useState, useEffect } from "react";
-import axios from "axios"; // For making API requests
-import NavBar from "../components/NavBar"; // Custom navigation bar
-import { useUser } from "../services/UserContext"; // Custom hook for getting logged-in user info
-import { getTotalCardsOwned } from "../services/firestoreService"; // Function to get user's collection stats
-import CardSearchBar from "../components/CardSearchBar"; // Reusable card search bar component
-import { getTotalDecksCreated, getMasterSetsCompleted } from "../services/firestoreService";
+// Dashboard.jsx
 
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import NavBar from "../components/NavBar";
+import CardSearchBar from "../components/CardSearchBar";
+import { useUser } from "../services/UserContext";
+import {
+  getTotalCardsOwned,
+  getTotalDecksCreated,
+  getMasterSetsCompleted,
+  getAllOwnedCards,
+} from "../services/firestoreService";
 
 const Dashboard = () => {
-  const user = useUser(); // Get the current logged-in user
-  const [cards, setCards] = useState([]); // Cards returned from search
-  const [loading, setLoading] = useState(false); // Loading state for search
-  const [totalCardsOwned, setTotalCardsOwned] = useState(null); // Total cards the user owns
-  const [selectedCard, setSelectedCard] = useState(null); // Currently selected card (for modal view)
-  const [sortOrder, setSortOrder] = useState("newest"); // Sorting method for cards
-  const [searchTerm, setSearchTerm] = useState(""); // User's current search term
-  const [searchField, setSearchField] = useState("name"); // Search field (name, artist, etc.)
+  const user = useUser();
+  const [ownedCards, setOwnedCards] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchField, setSearchField] = useState("name");
+  const [totalCardsOwned, setTotalCardsOwned] = useState(null);
   const [totalDecksCreated, setTotalDecksCreated] = useState(null);
   const [masterSetsCompleted, setMasterSetsCompleted] = useState(null);
+  const resultsRef = useRef(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedCard, setSelectedCard] = useState(null);
 
-  // Fetch total owned cards from Firestore when the user logs in
+
+
   useEffect(() => {
     const fetchStats = async () => {
       if (user) {
-        const [cards, decks, sets] = await Promise.all([
+        const [cards, decks, sets, owned] = await Promise.all([
           getTotalCardsOwned(user.uid),
           getTotalDecksCreated(user.uid),
-          getMasterSetsCompleted(user.uid)
+          getMasterSetsCompleted(user.uid),
+          getAllOwnedCards(user.uid),
         ]);
         setTotalCardsOwned(cards);
         setTotalDecksCreated(decks);
         setMasterSetsCompleted(sets);
+        setOwnedCards(owned);
       }
     };
     fetchStats();
   }, [user]);
 
-  // Function to handle searching for cards using the API
-  const handleSearch = async (term, field = "name") => {
-    setLoading(true);
-    try {
-      // Create query string depending on the selected field
-      const query =
-        field === "name"
-          ? `name:*${term}*`
-          : field === "artist"
-          ? `artist:"${term}"`
-          : `set.name:*${term}*`;
+const handleSearch = async (term, field = "name") => {
+  try {
+    const query =
+      field === "name"
+        ? `name:*${term}*`
+        : field === "artist"
+        ? `artist:"${term}"`
+        : `set.name:*${term}*`;
 
-      // Make API request to Pokémon TCG API
-      const response = await axios.get("https://api.pokemontcg.io/v2/cards", {
-        params: { q: query },
-      });
+    const response = await axios.get("https://api.pokemontcg.io/v2/cards", {
+      params: { q: query },
+    });
 
-      setCards(response.data.data); // Set returned cards
-    } catch (err) {
-      console.error("Error fetching cards:", err);
-    }
-    setLoading(false); // Stop loading indicator
+    setSearchResults(response.data.data); // Set the results
+
+    setTimeout(() => {
+      if (resultsRef.current) {
+        resultsRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  } catch (err) {
+    console.error("Error fetching cards:", err);
+  }
+};
+
+  const getTypeCounts = () => {
+    const counts = { Pokémon: 0, Trainer: 0, Energy: 0 };
+    ownedCards.forEach((card) => {
+      if (card.quantity && card.quantity > 0) {
+        const type = card.supertype;
+        if (type && counts[type] !== undefined) {
+          counts[type]++;
+        }
+      }
+    });
+    return Object.entries(counts).map(([label, count]) => ({ label, count }));
+  };
+
+  const getRarityCounts = () => {
+    const rarityMap = {};
+    ownedCards.forEach((card) => {
+      if (card.quantity && card.quantity > 0) {
+        const rarity = card.rarity || "Unknown";
+        rarityMap[rarity] = (rarityMap[rarity] || 0) + 1;
+      }
+    });
+
+    return Object.entries(rarityMap).map(([label, count]) => {
+      const symbol = {
+        Common: "●",
+        Uncommon: "◆",
+        Rare: "★",
+        "Double Rare": "★★",
+        "Ultra Rare": "☆☆",
+        "Illustration Rare": "★",
+        "Special Illustration Rare": "★★",
+        "Hyper Rare": "★",
+      }[label] || "•";
+      return { label, symbol, count };
+    });
   };
 
   return (
@@ -66,37 +111,16 @@ const Dashboard = () => {
       <NavBar />
       <div style={{ padding: "2rem" }}>
         <h1>Welcome to ProfessorDex!</h1>
-        {/* Personalized greeting */}
         {user && (
           <p>
             Hello, <strong>{user.email}</strong> — good to see you back!
+            
           </p>
         )}
-
         <hr style={{ margin: "2rem 0" }} />
 
-        {/* Collection stats overview */}
-        <section style={{ marginBottom: "2rem" }}>
-          <h2>Your Collection Overview</h2>
-          <ul>
-  <li>
-    Total Cards Owned:{" "}
-    <strong>{totalCardsOwned ?? "Loading..."}</strong>
-  </li>
-  <li>
-    Total Decks Created:{" "}
-    <strong>{totalDecksCreated ?? "Loading..."}</strong>
-  </li>
-  <li>
-    Master Sets Completed:{" "}
-    <strong>{masterSetsCompleted ?? "Loading..."}</strong>
-  </li>
-</ul>
-        </section>
-
-        {/* Card search area */}
-        <section>
-          <h2>🔍 Search for Cards</h2>
+        <section style={{ marginBottom: "3rem" }}>
+          <h2>Search for Cards</h2>
           <CardSearchBar
             searchTerm={searchTerm}
             onSearchTermChange={setSearchTerm}
@@ -104,135 +128,218 @@ const Dashboard = () => {
             onSearchFieldChange={setSearchField}
             onSearch={handleSearch}
           />
+        </section>
+{searchResults.length > 0 && (
+  <section ref={resultsRef} style={{ marginBottom: "3rem" }}>
+    <h3>Search Results</h3>
+  
+   <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+    gap: "1rem",
+  }}
+>
+  {searchResults.map((card) => (
+    <div
+      key={card.id}
+      style={{
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        padding: "1rem",
+        background: "#1c1c2b",
+      }}
+    >
+      <img
+        src={card.images.small}
+        alt={card.name}
+        style={{ width: "100%", borderRadius: "4px", cursor: "pointer" }}
+  onClick={() => setSelectedCard(card)} 
+      />
+      
+      <div
+        style={{
+          color: "#fff",
+          marginTop: "0.5rem",
+          fontSize: "0.9rem",
+        }}
+      >
+        <strong>{card.name}</strong>
+        <br />
+        <span style={{ fontSize: "0.8rem", color: "#aaa" }}>
+          {card.set.name} — #{card.number}
+        </span>
+      </div>
+    </div>
+  ))}
+</div>
 
-          {/* Sorting dropdown */}
-          <div style={{ marginTop: "1rem" }}>
-            <label htmlFor="sortOrder">Sort by: </label>
-            <select
-              id="sortOrder"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              style={{ padding: "0.4rem", marginLeft: "0.5rem" }}
-            >
-              <option value="newest">Release Date: Newest → Oldest</option>
-              <option value="oldest">Release Date: Oldest → Newest</option>
-              <option value="type">Card Type: A → Z</option>
-            </select>
-          </div>
+{selectedCard && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      backgroundColor: "rgba(0, 0, 0, 0.85)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+      padding: "1rem",
+    }}
+    onClick={() => setSelectedCard(null)}
+  >
+<div
+  style={{
+    backgroundColor: "#1c1c2b",
+    padding: "1rem",
+    borderRadius: "1rem",
+    width: "fit-content", // ✅ container wraps to content
+    maxWidth: "95vw",
+    maxHeight: "90vh",
+    overflowY: "auto",
+    color: "white",
+    position: "relative",
+    textAlign: "center",
+  }}
+  onClick={(e) => e.stopPropagation()}
+>
+  <button
+    onClick={() => setSelectedCard(null)}
+    style={{
+      position: "absolute",
+      top: "0.5rem",
+      right: "0.5rem",
+      background: "#ffcb05",
+      color: "#2a75bb",
+      border: "none",
+      padding: "0.4rem 0.8rem",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+  >
+    Close
+  </button>
 
-          {/* Show loading message while fetching cards */}
-          {loading && <p>Loading cards...</p>}
+<img
+  src={selectedCard.images.large}
+  alt={selectedCard.name}
+  style={{
+    width: "300px", // ✅ fixed clean size
+    height: "auto",
+    borderRadius: "8px",
+    marginTop: "1rem",
+    marginBottom: "1rem",
+  }}
+/>
 
-          {/* Display searched cards in a grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-              gap: "1rem",
-              marginTop: "2rem",
-            }}
-          >
-            {[...cards]
-              .sort((a, b) => {
-                // Sort logic based on selected sortOrder
-                if (sortOrder === "newest" || sortOrder === "oldest") {
-                  const dateA = new Date(a.set?.releaseDate || "1900-01-01");
-                  const dateB = new Date(b.set?.releaseDate || "1900-01-01");
-                  return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
-                }
-                if (sortOrder === "type") {
-                  const typeA = (a.types?.[0] || a.supertype || "").toLowerCase();
-                  const typeB = (b.types?.[0] || b.supertype || "").toLowerCase();
-                  return typeA.localeCompare(typeB);
-                }
-                return 0;
-              })
-              .map((card) => (
+  <h2 style={{ marginBottom: "0.5rem" }}>{selectedCard.name}</h2>
+  <p><strong>Set:</strong> {selectedCard.set.name} — #{selectedCard.number}</p>
+  {selectedCard.types && <p><strong>Type:</strong> {selectedCard.types.join(", ")}</p>}
+  {selectedCard.rarity && <p><strong>Rarity:</strong> {selectedCard.rarity}</p>}
+  {selectedCard.artist && <p><strong>Artist:</strong> {selectedCard.artist}</p>}
+</div>
+
+  </div>
+)}
+
+
+  </section>
+)}
+        <section style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
+            <div style={{ flex: "1", minWidth: "250px" }}>
+              <h3>Your Collection Overview</h3>
+              {[{ label: "Total Cards Owned", count: totalCardsOwned },
+                { label: "Total Decks Created", count: totalDecksCreated },
+                { label: "Master Sets Completed", count: masterSetsCompleted },
+              ].map((item, index) => (
                 <div
-                  key={card.id}
-                  onClick={() => setSelectedCard(card)} // Click to view card details
+                  key={index}
                   style={{
-                    cursor: "pointer",
-                    maxWidth: "160px",
-                    width: "100%",
-                    textAlign: "center",
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    padding: "0.2rem",
-                    margin: "0 auto",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "0.4rem 0",
+                    borderBottom: index < 2 ? "1px solid #ddd" : "none",
                   }}
                 >
-                  <img
-                    src={card.images.small}
-                    alt={card.name}
-                    style={{ width: "100%", borderRadius: "4px" }}
-                  />
-                  <p style={{ fontSize: "0.9rem", fontWeight: "bold" }}>{card.name}</p>
-                  <p style={{ fontSize: "0.8rem", marginTop: "0.1rem" }}>
-                    {card.set?.name} — #{card.number}
-                  </p>
+                  <span style={{ color: "#ccc" }}>{item.label}</span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      backgroundColor: "#8c92b9",
+                      padding: "2px 10px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    {item.count ?? "Loading..."}
+                  </span>
                 </div>
               ))}
+            </div>
+
+            <div style={{ flex: "1", minWidth: "250px" }}>
+              <h3>Unique cards per type</h3>
+              {getTypeCounts().map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "0.4rem 0",
+                    borderBottom: "1px solid #ddd",
+                  }}
+                >
+                  <span style={{ color: "#ccc" }}>{item.label}</span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      backgroundColor: "#8c92b9",
+                      padding: "2px 10px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    {item.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ flex: "1", minWidth: "250px" }}>
+              <h3>Unique cards per rarity</h3>
+              {getRarityCounts().map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "0.4rem 0",
+                    borderBottom: "1px solid #ddd",
+                  }}
+                >
+                  <span>
+                    <span style={{ marginRight: "0.4rem" }}>{item.symbol}</span>
+                    {item.label}
+                  </span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      backgroundColor: "#8c92b9",
+                      padding: "2px 10px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    {item.count}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </div>
-
-      {/* Modal for showing selected card details */}
-      {selectedCard && (
-        <div
-          onClick={() => setSelectedCard(null)} // Close modal on outside click
-          style={{
-            position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking inside
-            style={{
-              backgroundColor: "white",
-              padding: "2rem",
-              borderRadius: "8px",
-              width: "400px",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              boxShadow: "0 0 10px rgba(0,0,0,0.3)",
-            }}
-          >
-            <h2>{selectedCard.name}</h2>
-            <img
-              src={selectedCard.images.large}
-              alt={selectedCard.name}
-              style={{ width: "100%", borderRadius: "8px" }}
-            />
-            <p><strong>Type:</strong> {selectedCard.supertype}</p>
-            {selectedCard.subtypes && (
-              <p><strong>Subtypes:</strong> {selectedCard.subtypes.join(", ")}</p>
-            )}
-            <p><strong>Rarity:</strong> {selectedCard.rarity || "Unknown"}</p>
-            <p><strong>Set:</strong> {selectedCard.set.name}</p>
-            <p><strong>Artist:</strong> {selectedCard.artist}</p>
-            <button
-  onClick={() => setSelectedCard(null)}
-  style={{
-    marginTop: "1rem",
-    backgroundColor: "#8c92b9",
-    color: "white",
-    border: "none",
-    padding: "0.5rem 1rem",
-    borderRadius: "5px",
-    cursor: "pointer"
-  }}
->
-  Close
-</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

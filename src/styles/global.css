@@ -1,0 +1,433 @@
+/* ========================================================================
+   1. Root Theme Variables
+   ======================================================================== */
+:root {
+  --main-font: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --bg-dark: #121212;
+  --panel-dark: #1c1c2b;
+  --border-light: #ccc;
+  --accent: #8c92b9;
+  --font-light: #f0f0f0;
+  --font-muted: #ccc;
+  --shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+/* ========================================================================
+   2. Base Layout & Resets
+   ======================================================================== */
+body {
+  font-family: var(--main-font);
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: var(--font-light);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ========================================================================
+   3. Layout Containers
+   ======================================================================== */
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-panel {
+  background-color: var(--panel-dark);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: var(--border-light);
+  margin: 2rem 0;
+}
+
+.form-row,
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+/* ========================================================================
+   4. Card Grid & Tiles
+   ======================================================================== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* 🔧 Mobile Optimization */
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+}
+
+.card-tile {
+  background: #1c1c2b;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid #333;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.card-tile:hover {
+  transform: scale(1.05);
+}
+
+.card-tile img {
+  width: 100%;
+  border-radius: 4px;
+}
+
+.card-title {
+  font-size: 0.90rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  color: white;
+}
+
+.card-sub {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+
+
+/* ========================================================================
+   5. Buttons
+   ======================================================================== */
+.btn,
+.btn-success,
+.btn-danger,
+.btn-link,
+.create-btn {
+  background-color: #8c92b9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn:hover,
+.btn-success:hover,
+.btn-danger:hover,
+.create-btn:hover,
+.btn-link:hover {
+  background-color: #5e5f99;
+}
+
+.btn-danger {
+  background-color: #a14141;
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ========================================================================
+   6. Search & Filter Elements
+   ======================================================================== */
+.input-text,
+.collection-header input,
+.collection-header select,
+.filters-container input,
+.filters-container select {
+  background-color: #2a2a3d;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #1e1e2f;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+/* ========================================================================
+   7. Stats & Summary Display
+   ======================================================================== */
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.stats-block {
+  flex: 1;
+  min-width: 250px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.stat-count {
+  font-weight: bold;
+  background-color: var(--accent);
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+/* ========================================================================
+   8. Variant Tracking
+   ======================================================================== */
+.variant-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.variant-dot {
+  width: 16px;
+  height: 16px;
+  border: 2px solid;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.variant-qty-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.variant-qty-controls button {
+  background-color: #8c92b9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.variant-qty-controls button:hover {
+  background-color: #5e5f99;
+}
+
+/* ========================================================================
+   9. Set Header & Logos
+   ======================================================================== */
+.set-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.set-logo {
+  max-width: 300px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.set-logo-placeholder {
+  width: 100%;
+  height: 80px;
+  background-color: #1e1e2f;
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.set-logo {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+
+/* ========================================================================
+   10. MyCollection Grid Layout
+   ======================================================================== */
+.collection-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+
+.collection-tile {
+  background-color: #1e1e2f;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #444;
+  box-shadow: var(--shadow);
+}
+
+.collection-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+  text-decoration: underline;
+}
+
+.collection-owned {
+  font-size: 0.85rem;
+  color: var(--font-muted);
+  margin-bottom: 0.75rem;
+}
+
+.collection-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.collection-buttons button {
+  flex: 1;
+  background-color: #8c92b9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* ========================================================================
+   11. Modals & Export Panels
+   ======================================================================== */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #1c1c2b;
+  color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* ========================================================================
+   12. Text List Search View
+   ======================================================================== */
+.text-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.text-list li {
+  margin: 0.5rem 0;
+  background: #1c1c2b;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--font-light);
+}
+
+.text-list li button {
+  margin-left: 1rem;
+}
+
+/***** App layout ******/
+.app-wrapper {
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ========================================================================
+   13. Saved Decks.
+   ======================================================================== */
+   .deck-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.deck-card {
+  background-color: #1e1e2f;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #444;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+}
+
+.deck-card:hover {
+  transform: scale(1.02);
+}
+
+.deck-name {
+  font-size: 1.1rem;
+  color: #f0f0f0;
+}

@@ -10,6 +10,10 @@ import SetDetailPage from "../pages/SetDetailPage";
 import PrivateRoute from "./PrivateRoute";
 import CollectionDetailPage from "../pages/CollectionDetailPage";
 import SavedDecks from "../pages/SavedDecks"; // ✅ new import
+import ContactPage from "../pages/ContactPage";
+import Thanks from "../pages/Thanks";
+
+
 
 const AppRouter = () => {
   return (
@@ -80,6 +84,9 @@ const AppRouter = () => {
             </PrivateRoute>
           }
         />
+        <Route path="/thanks" element={<Thanks />} />
+        <Route path="/contact" element={<ContactPage />} />
+       
       </Routes>
     </Router>
   );
